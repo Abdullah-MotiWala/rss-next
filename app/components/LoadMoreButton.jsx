@@ -9,7 +9,7 @@ export default function LoadMoreButton({
     <div className="load-more-section">
       <div className="load-more-rule"></div>
       
-      {/* <div className="load-more-info">
+      <div className="load-more-info">
         <div className="load-more-meta">
           <span className="load-more-label">More coverage available</span>
           <span className="load-more-count">
@@ -27,16 +27,16 @@ export default function LoadMoreButton({
             Fetching {nextSource?.publisher} — {nextSource?.name}...
           </div>
         )}
-      </div> */}
+      </div>
 
       <div className="load-more-actions">
-        {/* <button
+        <button
           className="load-more-btn primary"
           onClick={onLoadMore}
           disabled={loading}
         >
           {loading ? 'Loading...' : '↓ Load Next Category'}
-        </button> */}
+        </button>
         
         {remaining > 1 && (
           <button

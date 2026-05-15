@@ -57,16 +57,6 @@ commodity-wire-next/
 
 ## 🎯 Sources Configured
 
-### LNG News — Google News RSS Aggregation
-Multi-publisher LNG coverage aggregated from Reuters, Bloomberg, S&P Global, LNG Industry, Argus, Rigzone, and 40+ other publishers:
-- All LNG News
-- LNG Terminals
-- LNG Vessels & Shipping
-- LNG Contracts & Deals
-- LNG Projects & FID
-- LNG as Fuel / Bunkering
-- LNG Markets & Prices
-
 ### Hellenic Shipping News (11 categories)
 Top Stories, International Shipping, Dry Bulk, Piracy & Security, Port News, Shipbuilding, Oil & Companies, General Energy, World Economy, Commodity, Stock Market
 
@@ -204,9 +194,6 @@ A: Yes — `.env.local` is in `.gitignore`, never committed. On Vercel, add it v
 
 **Q: Can I add database?**
 A: Yes — recommended next step. Use Vercel Postgres, Supabase, or Neon. Cache articles, enable search, add user accounts.
-
-**Q: Why Google News RSS for LNG?**
-A: Google News aggregates content from 50+ LNG publishers (Reuters, Bloomberg, S&P Global, LNG Industry, Argus, etc.) into a single feed. Works from any server (no bot protection issues) and provides broader coverage than any single publisher.
 
 ---
 

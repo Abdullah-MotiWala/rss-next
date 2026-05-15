@@ -3,7 +3,7 @@ import './styles/global.css';
 export const metadata = {
   title: 'The Commodity Wire — Energy, Shipping, Mining, Grain News',
   description:
-    'Real-time aggregated news for commodity professionals — LNG, shipping, energy, and grain markets.',
+    'Real-time aggregated news for commodity professionals — shipping, energy, grain, and market data.',
 };
 
 export default function RootLayout({ children }) {
