@@ -1,68 +1,100 @@
 /**
- * RSS FEED PROXY — Next.js App Router API Route
+ * SMART RSS FEED PROXY — Next.js App Router
  * 
- * Fetches RSS feeds server-side (no browser CORS issues).
- * Works identically in dev (`npm run dev`) and production (Vercel).
+ * For most sites: direct server-side fetch (fast, free)
+ * For bot-protected sites (LNG Prime's Cloudflare):
+ *   routes through ScrapingBee residential proxy
  * 
- * Usage from frontend:
- *   /api/feed-proxy?url=https://lngprime.com/feed/
+ * Required Vercel env var for LNG Prime:
+ *   SCRAPING_BEE_API_KEY=your_key_here
  */
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+// Hosts known to have strict bot protection (need ScrapingBee or similar)
+const BOT_PROTECTED_HOSTS = [
+  'lngprime.com',
+];
+
+function needsBotBypass(url) {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return BOT_PROTECTED_HOSTS.some(blocked => host.endsWith(blocked));
+  } catch {
+    return false;
+  }
+}
+
+async function fetchDirect(url) {
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+      'Accept':
+        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Cache-Control': 'no-cache',
+      'Sec-Fetch-Dest': 'document',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'none',
+      'Upgrade-Insecure-Requests': '1',
+    },
+    signal: AbortSignal.timeout(8000),
+  });
+}
+
+async function fetchViaScrapingBee(url) {
+  const key = process.env.SCRAPING_BEE_API_KEY;
+
+  if (!key) {
+    throw new Error(
+      'SCRAPING_BEE_API_KEY not set in environment. Add it to Vercel Project Settings → Environment Variables, then redeploy.'
+    );
+  }
+
+  const scrapingBeeUrl = new URL('https://app.scrapingbee.com/api/v1/');
+  scrapingBeeUrl.searchParams.set('api_key', key);
+  scrapingBeeUrl.searchParams.set('url', url);
+  scrapingBeeUrl.searchParams.set('render_js', 'false'); // RSS doesn't need JS
+  scrapingBeeUrl.searchParams.set('premium_proxy', 'true'); // Residential IPs
+
+  return fetch(scrapingBeeUrl.toString(), {
+    signal: AbortSignal.timeout(15000), // ScrapingBee is slower
+  });
+}
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const targetUrl = searchParams.get('url');
 
   if (!targetUrl) {
-    return new Response(
-      JSON.stringify({ error: 'Missing url parameter' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
+    return Response.json({ error: 'Missing url parameter' }, { status: 400 });
   }
 
-  // SSRF guard
   if (!/^https?:\/\//i.test(targetUrl)) {
-    return new Response(
-      JSON.stringify({ error: 'Only http(s) URLs allowed' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
+    return Response.json({ error: 'Only http(s) URLs allowed' }, { status: 400 });
   }
+
+  const useBotBypass = needsBotBypass(targetUrl);
 
   try {
-    const upstreamResponse = await fetch(targetUrl, {
-      method: 'GET',
-      headers: {
-        // Full realistic browser headers — bypasses most bot detection
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept':
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
-        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="121", "Google Chrome";v="121"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
-        'Sec-Fetch-User': '?1',
-        'Upgrade-Insecure-Requests': '1',
-      },
-      // Wait up to 8 seconds (Vercel Hobby plan has 10s limit)
-      signal: AbortSignal.timeout(8000),
-    });
+    const upstreamResponse = useBotBypass
+      ? await fetchViaScrapingBee(targetUrl)
+      : await fetchDirect(targetUrl);
 
     if (!upstreamResponse.ok) {
-      return new Response(
-        JSON.stringify({
+      return Response.json(
+        {
           error: `Upstream returned ${upstreamResponse.status}`,
           url: targetUrl,
-        }),
-        { status: upstreamResponse.status, headers: { 'Content-Type': 'application/json' } }
+          usedBotBypass: useBotBypass,
+          hint: useBotBypass
+            ? 'ScrapingBee returned an error — check SCRAPING_BEE_API_KEY value and credits at scrapingbee.com'
+            : 'Site may have added bot protection — consider adding to BOT_PROTECTED_HOSTS list',
+        },
+        { status: upstreamResponse.status }
       );
     }
 
@@ -73,17 +105,17 @@ export async function GET(request) {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
         'Access-Control-Allow-Origin': '*',
-        // Cache for 10 minutes — speed + reduce upstream load
         'Cache-Control': 's-maxage=600, stale-while-revalidate=300',
       },
     });
   } catch (err) {
-    return new Response(
-      JSON.stringify({
+    return Response.json(
+      {
         error: err.message || 'Unknown error',
         url: targetUrl,
-      }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+        usedBotBypass: useBotBypass,
+      },
+      { status: 500 }
     );
   }
 }
