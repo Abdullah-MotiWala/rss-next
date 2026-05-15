@@ -119,7 +119,7 @@ export default function Home() {
 
   return (
     <div className="app">
-      <Masthead fetchedAt={fetchedAt} />
+      {/* <Masthead fetchedAt={fetchedAt} /> */}
       <TickerBar
         sourceStatus={sourceStatus}
         loading={initialLoading}
@@ -159,7 +159,7 @@ export default function Home() {
               <div className="all-loaded">
                 <span className="all-loaded-rule"></span>
                 <span className="all-loaded-text">
-                  ✓ All {loadedSourceCount} feeds loaded · {articles.length} articles
+                  All {loadedSourceCount} feeds loaded · {articles.length} articles
                 </span>
                 <span className="all-loaded-rule"></span>
               </div>
@@ -168,7 +168,7 @@ export default function Home() {
         )}
       </main>
 
-      <footer className="footer">
+      {/* <footer className="footer">
         <div className="footer-content">
           <div>
             <div className="footer-title">The Commodity Wire</div>
@@ -194,7 +194,7 @@ export default function Home() {
             </ul>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }

@@ -22,19 +22,6 @@ Opens at `http://localhost:3000`. **`/api/feed-proxy` and `/api/marketaux` work 
 
 ---
 
-## ✨ Why Next.js Over Vite
-
-| Issue | Vite Version | Next.js Version |
-|---|---|---|
-| Local API routes | Custom plugin needed | Built-in `app/api/route.js` |
-| Production deployment | Vercel adapter + config | Native, zero config |
-| API key security | Exposed in browser bundle | Server-side only |
-| RSS fetching | Public proxy fallback (unreliable) | Always your own server |
-| LNG Prime / bot-blocked sites | Inconsistent | Reliable from Vercel IPs |
-| Caching | Manual headers | Native `revalidate` |
-
----
-
 ## 📂 Project Structure
 
 ```
@@ -68,26 +55,48 @@ commodity-wire-next/
 
 ---
 
-## 🔐 Security Improvements
+## 🎯 Sources Configured
 
-### Before (Vite):
+### LNG News — Google News RSS Aggregation
+Multi-publisher LNG coverage aggregated from Reuters, Bloomberg, S&P Global, LNG Industry, Argus, Rigzone, and 40+ other publishers:
+- All LNG News
+- LNG Terminals
+- LNG Vessels & Shipping
+- LNG Contracts & Deals
+- LNG Projects & FID
+- LNG as Fuel / Bunkering
+- LNG Markets & Prices
+
+### Hellenic Shipping News (11 categories)
+Top Stories, International Shipping, Dry Bulk, Piracy & Security, Port News, Shipbuilding, Oil & Companies, General Energy, World Economy, Commodity, Stock Market
+
+### World Grain (1 topic)
+- ABA — to add more topics, view source of world-grain.com/rss for topic IDs
+
+### Marketaux API (2 endpoints)
+- Energy (Sentiment)
+- Basic Materials
+
+---
+
+## ⚙️ Adding More Sources
+
+Edit `app/services/dataSourceService.js` and add to `SOURCES` array:
+
 ```js
-// Client-side — visible in browser source!
-const apiKey = import.meta.env.VITE_MARKETAUX_API_KEY;
-fetch(`https://api.marketaux.com/...?api_token=${apiKey}`);
+{
+  id: 'my-source',
+  publisher: 'My Publisher',
+  publisherColor: '#3b82f6',
+  name: 'Tech News',
+  type: 'rss',
+  category: 'Technology',
+  priority: 'lazy',  // or 'initial' to auto-load
+  feedUrl: 'https://example.com/feed/',
+},
 ```
-☝️ Anyone could see and steal the key.
 
-### After (Next.js):
-```js
-// Client calls our endpoint (no key needed)
-fetch('/api/marketaux?industries=Energy');
-
-// Server handles the key (server-side only)
-const apiKey = process.env.MARKETAUX_API_KEY;
-// Never sent to browser
-```
-☝️ Key never leaves the server.
+UI automatically picks it up — no other code changes needed.
 
 ---
 
@@ -132,40 +141,20 @@ vercel --prod
 
 ---
 
-## 🎯 Sources Configured
+## 🔐 Security
 
-### LNG Prime (7 categories)
-- All News, Breaking News, LNG Terminals, Vessels, Contracts & Tenders, Corporate, LNG as Fuel
-
-### Hellenic Shipping News (11 categories)
-- Top Stories, International Shipping, Dry Bulk, Piracy & Security, Port News, Shipbuilding, Oil & Companies, General Energy, World Economy, Commodity, Stock Market
-
-### World Grain (1 topic)
-- ABA — to add more topics, view source of world-grain.com/rss for topic IDs
-
-### Marketaux API (2 endpoints)
-- Energy (Sentiment), Basic Materials
-
----
-
-## ⚙️ Adding More Sources
-
-Edit `app/services/dataSourceService.js` and add to `SOURCES` array:
+### Marketaux API Key — Server-Side Only
 
 ```js
-{
-  id: 'my-source',
-  publisher: 'My Publisher',
-  publisherColor: '#3b82f6',
-  name: 'Tech News',
-  type: 'rss',
-  category: 'Technology',
-  priority: 'lazy',  // or 'initial' to auto-load
-  feedUrl: 'https://example.com/feed/',
-},
+// Client calls our endpoint (no key needed)
+fetch('/api/marketaux?industries=Energy');
+
+// Server handles the key (server-side only)
+const apiKey = process.env.MARKETAUX_API_KEY;
+// Never sent to browser
 ```
 
-UI automatically picks it up — no other code changes needed.
+Key never leaves the server. Safe.
 
 ---
 
@@ -207,9 +196,6 @@ Reduces upstream calls + speeds repeat visits.
 
 ## ❓ FAQ
 
-**Q: LNG Prime/World Grain bot blocked in Vite. Will Next.js fix it?**
-A: Mostly yes — Vercel's production IPs are aligned with major CDNs and are rarely blocked. If a specific site still blocks server-side fetches, you may need a residential proxy service for that specific source.
-
 **Q: Free tier limits?**
 A: Vercel Hobby plan: 100K API invocations/day. Your aggregator uses ~10-20 invocations per visit. You'll never hit the limit.
 
@@ -218,6 +204,9 @@ A: Yes — `.env.local` is in `.gitignore`, never committed. On Vercel, add it v
 
 **Q: Can I add database?**
 A: Yes — recommended next step. Use Vercel Postgres, Supabase, or Neon. Cache articles, enable search, add user accounts.
+
+**Q: Why Google News RSS for LNG?**
+A: Google News aggregates content from 50+ LNG publishers (Reuters, Bloomberg, S&P Global, LNG Industry, Argus, etc.) into a single feed. Works from any server (no bot protection issues) and provides broader coverage than any single publisher.
 
 ---
 

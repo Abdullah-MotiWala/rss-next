@@ -2,86 +2,97 @@
  * UNIFIED DATA SOURCE SERVICE — Progressive Loading
  * 
  * Sources:
- *   1. LNG Prime (RSS) — via /api/feed-proxy
- *   2. Hellenic Shipping News (RSS) — via /api/feed-proxy
- *   3. World Grain (RSS) — via /api/feed-proxy
- *   4. Marketaux (API) — via /api/marketaux (key kept server-side)
+ *   1. LNG News (Google News RSS) — Multi-publisher LNG aggregation
+ *   2. Hellenic Shipping News (RSS) — Shipping, oil, energy news
+ *   3. World Grain (RSS) — Grain industry news
+ *   4. Marketaux (API) — Stock market sentiment data
  * 
  * All sources go through our own Next.js API routes — no public proxy
  * dependency, same code path in dev and production, secure API keys.
+ * 
+ * NOTE: LNG Prime sources removed due to Cloudflare bot protection
+ * blocking datacenter IPs. Replaced with Google News RSS aggregation
+ * which provides broader LNG coverage from 50+ publishers without
+ * bot detection issues.
  */
 
 export const SOURCES = [
-  /* ===== LNG PRIME ===== */
+  /* ===== GOOGLE NEWS — LNG COVERAGE =====
+   * Google News RSS aggregates content from multiple LNG publishers
+   * including Reuters, Bloomberg, S&P Global, LNG Industry, Argus,
+   * S&P Platts, etc. No bot protection, works from any server.
+   * 
+   * Format: https://news.google.com/rss/search?q=QUERY&hl=en-US&gl=US&ceid=US:en
+   */
   {
-    id: 'lng-main',
-    publisher: 'LNG Prime',
+    id: 'lng-news-all',
+    publisher: 'LNG News',
     publisherColor: '#1e5a8e',
-    name: 'All News',
+    name: 'All LNG News',
     type: 'rss',
     category: 'LNG',
     priority: 'initial',
-    feedUrl: 'https://lngprime.com/feed/',
+    feedUrl: 'https://news.google.com/rss/search?q=%22liquefied+natural+gas%22+OR+LNG&hl=en-US&gl=US&ceid=US:en',
   },
   {
-    id: 'lng-terminals',
-    publisher: 'LNG Prime',
+    id: 'lng-news-terminals',
+    publisher: 'LNG News',
     publisherColor: '#1e5a8e',
     name: 'LNG Terminals',
     type: 'rss',
     category: 'LNG',
     priority: 'lazy',
-    feedUrl: 'https://lngprime.com/category/lng-terminals/feed/',
+    feedUrl: 'https://news.google.com/rss/search?q=%22LNG+terminal%22+OR+%22LNG+export%22+OR+%22LNG+import%22&hl=en-US&gl=US&ceid=US:en',
   },
   {
-    id: 'lng-vessels',
-    publisher: 'LNG Prime',
+    id: 'lng-news-vessels',
+    publisher: 'LNG News',
     publisherColor: '#1e5a8e',
-    name: 'Vessels',
+    name: 'LNG Vessels & Shipping',
     type: 'rss',
     category: 'LNG',
     priority: 'lazy',
-    feedUrl: 'https://lngprime.com/category/vessels/feed/',
+    feedUrl: 'https://news.google.com/rss/search?q=%22LNG+vessel%22+OR+%22LNG+carrier%22+OR+%22LNG+tanker%22&hl=en-US&gl=US&ceid=US:en',
   },
   {
-    id: 'lng-contracts',
-    publisher: 'LNG Prime',
+    id: 'lng-news-contracts',
+    publisher: 'LNG News',
     publisherColor: '#1e5a8e',
-    name: 'Contracts & Tenders',
+    name: 'LNG Contracts & Deals',
     type: 'rss',
     category: 'LNG',
     priority: 'lazy',
-    feedUrl: 'https://lngprime.com/category/contracts-and-tenders/feed/',
+    feedUrl: 'https://news.google.com/rss/search?q=%22LNG+contract%22+OR+%22LNG+deal%22+OR+%22LNG+supply+agreement%22&hl=en-US&gl=US&ceid=US:en',
   },
   {
-    id: 'lng-corporate',
-    publisher: 'LNG Prime',
+    id: 'lng-news-projects',
+    publisher: 'LNG News',
     publisherColor: '#1e5a8e',
-    name: 'Corporate',
+    name: 'LNG Projects & FID',
     type: 'rss',
     category: 'LNG',
     priority: 'lazy',
-    feedUrl: 'https://lngprime.com/category/corporate/feed/',
+    feedUrl: 'https://news.google.com/rss/search?q=%22LNG+project%22+OR+%22LNG+FID%22+OR+%22LNG+facility%22&hl=en-US&gl=US&ceid=US:en',
   },
   {
-    id: 'lng-as-fuel',
-    publisher: 'LNG Prime',
+    id: 'lng-news-fuel',
+    publisher: 'LNG News',
     publisherColor: '#1e5a8e',
     name: 'LNG as Fuel',
     type: 'rss',
     category: 'LNG',
     priority: 'lazy',
-    feedUrl: 'https://lngprime.com/category/lng-as-fuel/feed/',
+    feedUrl: 'https://news.google.com/rss/search?q=%22LNG+bunker%22+OR+%22LNG+fuel%22+OR+%22LNG+bunkering%22&hl=en-US&gl=US&ceid=US:en',
   },
   {
-    id: 'lng-breaking',
-    publisher: 'LNG Prime',
+    id: 'lng-news-markets',
+    publisher: 'LNG News',
     publisherColor: '#1e5a8e',
-    name: 'Breaking News',
+    name: 'LNG Markets & Prices',
     type: 'rss',
     category: 'LNG',
     priority: 'lazy',
-    feedUrl: 'https://lngprime.com/category/breaking-news/feed/',
+    feedUrl: 'https://news.google.com/rss/search?q=%22LNG+price%22+OR+%22LNG+market%22+OR+%22LNG+demand%22&hl=en-US&gl=US&ceid=US:en',
   },
 
   /* ===== HELLENIC SHIPPING NEWS ===== */
