@@ -2,15 +2,88 @@
  * UNIFIED DATA SOURCE SERVICE — Progressive Loading
  * 
  * Sources:
- *   1. Hellenic Shipping News (RSS) — Shipping, oil, energy news
- *   2. World Grain (RSS) — Grain industry news
- *   3. Marketaux (API) — Stock market sentiment data
+ *   1. LNG Prime (RSS) — via /api/feed-proxy
+ *   2. Hellenic Shipping News (RSS) — via /api/feed-proxy
+ *   3. World Grain (RSS) — via /api/feed-proxy
+ *   4. Marketaux (API) — via /api/marketaux (key kept server-side)
  * 
  * All sources go through our own Next.js API routes — no public proxy
  * dependency, same code path in dev and production, secure API keys.
  */
 
 export const SOURCES = [
+  /* ===== LNG PRIME ===== */
+  {
+    id: 'lng-main',
+    publisher: 'LNG Prime',
+    publisherColor: '#1e5a8e',
+    name: 'All News',
+    type: 'rss',
+    category: 'LNG',
+    priority: 'initial',
+    feedUrl: 'https://lngprime.com/feed/',
+  },
+  {
+    id: 'lng-terminals',
+    publisher: 'LNG Prime',
+    publisherColor: '#1e5a8e',
+    name: 'LNG Terminals',
+    type: 'rss',
+    category: 'LNG',
+    priority: 'lazy',
+    feedUrl: 'https://lngprime.com/category/lng-terminals/feed/',
+  },
+  {
+    id: 'lng-vessels',
+    publisher: 'LNG Prime',
+    publisherColor: '#1e5a8e',
+    name: 'Vessels',
+    type: 'rss',
+    category: 'LNG',
+    priority: 'lazy',
+    feedUrl: 'https://lngprime.com/category/vessels/feed/',
+  },
+  {
+    id: 'lng-contracts',
+    publisher: 'LNG Prime',
+    publisherColor: '#1e5a8e',
+    name: 'Contracts & Tenders',
+    type: 'rss',
+    category: 'LNG',
+    priority: 'lazy',
+    feedUrl: 'https://lngprime.com/category/contracts-and-tenders/feed/',
+  },
+  {
+    id: 'lng-corporate',
+    publisher: 'LNG Prime',
+    publisherColor: '#1e5a8e',
+    name: 'Corporate',
+    type: 'rss',
+    category: 'LNG',
+    priority: 'lazy',
+    feedUrl: 'https://lngprime.com/category/corporate/feed/',
+  },
+  {
+    id: 'lng-as-fuel',
+    publisher: 'LNG Prime',
+    publisherColor: '#1e5a8e',
+    name: 'LNG as Fuel',
+    type: 'rss',
+    category: 'LNG',
+    priority: 'lazy',
+    feedUrl: 'https://lngprime.com/category/lng-as-fuel/feed/',
+  },
+  {
+    id: 'lng-breaking',
+    publisher: 'LNG Prime',
+    publisherColor: '#1e5a8e',
+    name: 'Breaking News',
+    type: 'rss',
+    category: 'LNG',
+    priority: 'lazy',
+    feedUrl: 'https://lngprime.com/category/breaking-news/feed/',
+  },
+
   /* ===== HELLENIC SHIPPING NEWS ===== */
   {
     id: 'hellenic-top',
@@ -29,7 +102,7 @@ export const SOURCES = [
     name: 'International Shipping',
     type: 'rss',
     category: 'Shipping',
-    priority: 'initial',
+    priority: 'lazy',
     feedUrl: 'https://www.hellenicshippingnews.com/category/international-shipping-news/feed/',
   },
   {
@@ -39,7 +112,7 @@ export const SOURCES = [
     name: 'Dry Bulk Market',
     type: 'rss',
     category: 'Shipping',
-    priority: 'initial',
+    priority: 'lazy',
     feedUrl: 'https://www.hellenicshippingnews.com/category/dry-bulk-market/feed/',
   },
   {
@@ -49,7 +122,7 @@ export const SOURCES = [
     name: 'Piracy & Security News',
     type: 'rss',
     category: 'Shipping',
-    priority: 'initial',
+    priority: 'lazy',
     feedUrl: 'https://www.hellenicshippingnews.com/category/piracy-and-security-news/feed/',
   },
   {
@@ -59,7 +132,7 @@ export const SOURCES = [
     name: 'Port News',
     type: 'rss',
     category: 'Shipping',
-    priority: 'initial',
+    priority: 'lazy',
     feedUrl: 'https://www.hellenicshippingnews.com/category/port-news/feed/',
   },
   {
@@ -69,7 +142,7 @@ export const SOURCES = [
     name: 'Shipbuilding News',
     type: 'rss',
     category: 'Shipping',
-    priority: 'initial',
+    priority: 'lazy',
     feedUrl: 'https://www.hellenicshippingnews.com/category/shipbuilding-news/feed/',
   },
   {
@@ -79,7 +152,7 @@ export const SOURCES = [
     name: 'Oil & Companies News',
     type: 'rss',
     category: 'Energy',
-    priority: 'initial',
+    priority: 'lazy',
     feedUrl: 'https://www.hellenicshippingnews.com/category/oil-companies-news/feed/',
   },
   {
@@ -89,7 +162,7 @@ export const SOURCES = [
     name: 'General Energy News',
     type: 'rss',
     category: 'Energy',
-    priority: 'initial',
+    priority: 'lazy',
     feedUrl: 'https://www.hellenicshippingnews.com/category/general-energy-news/feed/',
   },
   {
@@ -99,7 +172,7 @@ export const SOURCES = [
     name: 'World Economy News',
     type: 'rss',
     category: 'Economy',
-    priority: 'initial',
+    priority: 'lazy',
     feedUrl: 'https://www.hellenicshippingnews.com/category/world-economy-news/feed/',
   },
   {
@@ -109,7 +182,7 @@ export const SOURCES = [
     name: 'Commodity News',
     type: 'rss',
     category: 'Commodities',
-    priority: 'initial',
+    priority: 'lazy',
     feedUrl: 'https://www.hellenicshippingnews.com/category/commodity-news/feed/',
   },
   {
@@ -119,7 +192,7 @@ export const SOURCES = [
     name: 'Stock Market News',
     type: 'rss',
     category: 'Markets',
-    priority: 'initial',
+    priority: 'lazy',
     feedUrl: 'https://www.hellenicshippingnews.com/category/stock-market-news/feed/',
   },
 
@@ -153,12 +226,13 @@ export const SOURCES = [
     name: 'Basic Materials',
     type: 'marketaux',
     category: 'Commodities',
-    priority: 'initial',
+    priority: 'lazy',
     filters: { industries: 'Basic Materials' },
   },
 ];
 
 export const INITIAL_SOURCES = SOURCES.filter(s => s.priority === 'initial');
+export const LAZY_SOURCES = SOURCES.filter(s => s.priority === 'lazy');
 export const PUBLISHERS = [...new Set(SOURCES.map(s => s.publisher))];
 export const CATEGORIES = [...new Set(SOURCES.map(s => s.category))];
 
@@ -295,6 +369,15 @@ function fetchOne(source) {
 export async function fetchInitialSources() {
   const results = await Promise.all(INITIAL_SOURCES.map(fetchOne));
   return processResults(results);
+}
+
+export async function fetchOneSource(sourceId) {
+  const source = SOURCES.find(s => s.id === sourceId);
+  if (!source) {
+    return { articles: [], sourceStatus: [], fetchedAt: new Date() };
+  }
+  const result = await fetchOne(source);
+  return processResults([result]);
 }
 
 function processResults(results) {
